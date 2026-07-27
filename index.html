@@ -257,7 +257,31 @@ a{color:inherit;text-decoration:none}
 <script>
 const SUPABASE_URL = "https://rhrswucounbjfsdnzhkd.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJocnN3dWNvdW5iamZzZG56aGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NzI3NjQsImV4cCI6MjEwMDI0ODc2NH0.McNy0WD6MTUfJ58duQDoWRwDKEBefJ2hc5xwWhooPbY";
-const ALLOWED_EMAIL = "divineemmanuel461@gmail.com"; // Only this email can edit
+const ALLOWED_EMAIL = "divineemmanuel461@gmail.com";
+  async function doLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
+  const errEl = document.getElementById("login-err");
+  errEl.style.display = "none";
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error || !data.session) {
+    errEl.textContent = "Wrong email or password";
+    errEl.style.display = "block";
+    return;
+  }
+
+  if (data.session.user.email !== ALLOWED_EMAIL) {
+    errEl.textContent = "Access denied";
+    errEl.style.display = "block";
+    await sb.auth.signOut();
+    return;
+  }
+
+  document.getElementById("login-overlay").style.display = "none";
+  enableEdit();
+  }// Only this email can edit
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── LOAD SAVED DATA ON PAGE LOAD ──────────────────────────────────────────────
